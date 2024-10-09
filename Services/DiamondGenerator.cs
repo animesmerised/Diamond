@@ -12,29 +12,31 @@ public class DiamondGenerator
 
         //Convert to uppercase if lowercase 
         targetLetter = targetLetter.ToString().ToUpper()[0];
-        var letterArray = GetCharactersInRange(targetLetter);
-        var diamondLines = new List<string>();
-        foreach (var c in letterArray)
-        {
-            var line = MakeDiamondLine(letterArray.Length, c, padCharacter);
-            diamondLines.Add(line);
-        }
+        var letterArray = Enumerable.Range('A', targetLetter - 'A' + 1).Select(r => ((char)r)).ToArray();
+        var diamondLines = MakeDiamondLines(letterArray, padCharacter);
         diamondLines.AddRange(diamondLines.ToArray().Reverse().Skip(1));
         return string.Join("\n", diamondLines);
     }
 
-    private static char[] GetCharactersInRange(char target)
+    private static List<string> MakeDiamondLines(char[] letterArray, char padCharacter = ' ')
     {
-        return Enumerable.Range('A', target - 'A' + 1).Select(r => ((char)r)).ToArray();
-    }
-    private static string MakeDiamondLine(int letterCount, char lineLetter, char padCharacter = ' ')
-    {
-        var charDifference = Math.Abs('A' - lineLetter);
-        var outerPadding = string.Empty.PadRight(letterCount - charDifference - 1, padCharacter);
-        var innerPadding = string.Empty.PadRight(charDifference == 0 ? 0 : charDifference * 2 - 1, padCharacter);
+        var diamondLines = new List<string>();
+        var outerPaddingLength = letterArray.Length - 1;
+        var innerPaddingLength = -1;
+        foreach (var lineLetter in letterArray)
+        {
+            var charDifference = lineLetter - 'A';
+            var outerPadding = string.Empty.PadRight(outerPaddingLength, padCharacter);
+            var innerPadding = string.Empty.PadRight(innerPaddingLength <0 ? 0: innerPaddingLength, padCharacter);
 
-        return lineLetter == 'A' ?
-            $"{outerPadding}{lineLetter}{outerPadding}" :
-            $"{outerPadding}{lineLetter}{innerPadding}{lineLetter}{outerPadding}";
+            diamondLines.Add( lineLetter == 'A' ?
+                $"{outerPadding}{lineLetter}{outerPadding}" :
+                $"{outerPadding}{lineLetter}{innerPadding}{lineLetter}{outerPadding}");
+
+            innerPaddingLength += 2;
+            outerPaddingLength--;
+        }
+        return diamondLines;
     }
+
 }
